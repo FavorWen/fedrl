@@ -1,0 +1,6 @@
+*.log
+*.dict
+data/*
+FedLab/.git
+
+**/__pycache__

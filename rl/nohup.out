@@ -1,0 +1,30 @@
+2023-12-25 21:29:36.153372: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-12-25 21:29:36.200631: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-12-25 21:29:37.004677: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+usage: main_qi.py [-h] [--client_nums CLIENT_NUMS]
+                  [--participant_nums PARTICIPANT_NUMS] [--seed SEED]
+                  [--device DEVICE] [--dataset DATASET] [--arch ARCH]
+                  [--partition PARTITION] [--optimizer OPTIMIZER] [--lr LR]
+                  [--epoch EPOCH] [--rl_ddl RL_DDL] [--batch_size BATCH_SIZE]
+main_qi.py: error: argument --seed: expected one argument
+2023-12-25 21:31:24.429436: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-12-25 21:31:24.479859: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-12-25 21:31:25.223432: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+usage: main_qi.py [-h] [--client_nums CLIENT_NUMS]
+                  [--participant_nums PARTICIPANT_NUMS] [--seed SEED]
+                  [--device DEVICE] [--dataset DATASET] [--arch ARCH]
+                  [--partition PARTITION] [--optimizer OPTIMIZER] [--lr LR]
+                  [--epoch EPOCH] [--rl_ddl RL_DDL] [--batch_size BATCH_SIZE]
+main_qi.py: error: argument --seed: expected one argument
+2023-12-25 21:31:51.728944: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-12-25 21:31:51.778117: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-12-25 21:31:52.500739: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+usage: main_qi.py [-h] [--client_nums CLIENT_NUMS]
+                  [--participant_nums PARTICIPANT_NUMS] [--seed SEED]
+                  [--device DEVICE] [--dataset DATASET] [--arch ARCH]
+                  [--partition PARTITION] [--optimizer OPTIMIZER] [--lr LR]
+                  [--epoch EPOCH] [--rl_ddl RL_DDL] [--batch_size BATCH_SIZE]
+main_qi.py: error: argument --seed: expected one argument
