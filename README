@@ -1,0 +1,14 @@
+1. 安装conda
+
+2. 安装python、pytorch
+
+3. 安装FedLab
+
+```
+cd FedLab
+pip install -r requirements.txt
+pip install fedlab=1.3.0
+```
+
+4. 修改数据集存放路径
+rl/env.py第17行，修改dst_path=''为希望存放的路径，后续运行时，代码会自动将数据集下载至指定位置

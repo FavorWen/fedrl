@@ -14,7 +14,7 @@ from fedlab.utils.dataset import FMNISTPartitioner
 from fedlab.utils.dataset import MNISTPartitioner
 
 class Env:
-    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='/HARD-DRIVE/QI/data'):
+    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='../data'):
         self.obs_dim = obs_dim # x1的维度
         self.arch_name = arch_name # 联邦学习目标模型的名字
         self.client_nums = client_nums # 客户端的总数
