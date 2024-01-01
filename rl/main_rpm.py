@@ -1,9 +1,10 @@
 from train import *
-from helper import criterion, setup_seed, ReplayMemory
+from helper import criterion, setup_seed, ReplayMemory, LogSaver
 from rl_model import *
 import argparse
 import logging
 import os
+import pickle
 
 parser = argparse.ArgumentParser()
 # parser.add_argument("--gpu",type=int,default='1')
@@ -46,8 +47,10 @@ setup_seed(seed)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 logger.info('Settings: {}'.format(args))
+log_saver = LogSaver()
+
 # 创建环境
-env = Env(obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, optimizer="SGD", lr=lr, epoch=epoch, rl_ddl = rl_ddl, batch_size=batch_size)
+env = Env(obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, log_saver=log_saver, optimizer="SGD", lr=lr, epoch=epoch, rl_ddl = rl_ddl, batch_size=batch_size)
 
 
 logger.info('obs_dim {}, act_dim {}'.format(obs_dim, act_dim))
@@ -85,6 +88,7 @@ agent = Agent(alg, obs_dim=obs_dim, act_dim=act_dim, participant_nums=participan
 #     run_episode(env, agent, train_or_test='test', render=True)
 #     exit()
 
+experience_path = "train_data/seed{}_arch{}_dataset{}_nums{}_part{}.elog".format(seed, arch_name, dataset_name, client_nums, partition)
 
 env.reset()
 
@@ -96,6 +100,7 @@ for i in range(5):
     while True:
         action = agent.sample(obs) # 采样动作
         next_obs, reward, done, _, _  = env.step(action)
+        log_saver.updateLog((action, reward))
         rpm.append((obs, action, reward, next_obs, done))
 
         if (len(rpm) >= MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
@@ -115,6 +120,10 @@ for i in range(5):
 
         if done:
             break
+    log_saver.flush()
+
+    with open(experience_path, 'wb') as f:
+        pickle.dump(log_saver, f)
 
     spearman_co = spearman(env, agent)
     if (i + 1) % 100 == 0:

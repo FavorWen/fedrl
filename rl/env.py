@@ -3,6 +3,7 @@ import torchvision
 from model import CustomSubset, Classifier
 from server import Server, RecieveSendService
 from client import Client
+from helper import LogSaver
 import random
 import torch
 import numpy as np
@@ -14,7 +15,7 @@ from fedlab.utils.dataset import FMNISTPartitioner
 from fedlab.utils.dataset import MNISTPartitioner
 
 class Env:
-    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='../data'):
+    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, log_saver:LogSaver, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='../data'):
         self.obs_dim = obs_dim # x1的维度
         self.arch_name = arch_name # 联邦学习目标模型的名字
         self.client_nums = client_nums # 客户端的总数
@@ -32,17 +33,20 @@ class Env:
         self.tick = 0
         self.rl_ddl = rl_ddl
         self.dst_path = dst_path
+        self.log_saver = log_saver
         assert obs_dim % (client_nums+1) == 0
     def init_state(self):
         _state = self.state[0]
         r = int(self.obs_dim / (self.client_nums+1))
         base = self.client_nums+1
+        self.log_saver.setRank(self.rank)
         for i in range(0, r):
             participants = self.server.run()
             acc, loss = self.validate(self.valset)
             _state[i*base + self.client_nums] = loss
             for j in participants:
                 _state[i*base + j] = 1
+            self.log_saver.updateLog((participants, loss))
         self.state[0] = _state
         return self.state
     def update_state(self, action, loss):
@@ -94,7 +98,8 @@ class Env:
     def reset(self):
         self.tick = 0
         self.init_dataset()
-        return self.init_state()
+        return
+        # return self.init_state()
     
     def reset_light(self):
         self.global_net = Classifier(self.arch_name, self.dataset_name).to(self.device)

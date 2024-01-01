@@ -3,3 +3,4 @@
 data/*
 FedLab
 **/__pycache__
+**/._wordcount_selection.tex

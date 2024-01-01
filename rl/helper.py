@@ -48,6 +48,27 @@ def aggregate(net, clientGrads, clientN, samples):
         sum_grad[k] = sum_mean
     return update(net, sum_grad)
 
+class LogSaver(object):
+    def __init__(self):
+        self.size = 0
+        self.rank_pool = []
+        self.history_pool = []
+        self.rank = None
+        self.history = []
+
+    def flush(self):
+        self.rank_pool.append(self.rank)
+        self.history.append(self.history)
+        self.rank = None
+        self.history = []
+        self.size += 1
+
+    def setRank(self, rank):
+        self.rank = rank
+    
+    def updateLog(self, log):
+        self.history.append(log)
+
 class ReplayMemory(object):
     def __init__(self, max_size=12):
         self.buffer = collections.deque(maxlen=max_size)
