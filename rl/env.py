@@ -37,7 +37,6 @@ class Env:
     def init_state(self):
         logs = []
         r = int(self.obs_dim / (self.client_nums+1))
-        base = self.client_nums+1
         self.log_saver.setRank(self.rank)
         for i in range(0, r):
             participants = self.server.run()
@@ -112,4 +111,4 @@ class Env:
         participants = self.server.run(action)
         acc, loss = self.validate(self.valset)
         self.tick += 1
-        return self.state, loss, self.tick >= self.rl_ddl, participants, acc
+        return loss, acc, participants, self.tick >= self.rl_ddl

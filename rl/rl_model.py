@@ -33,10 +33,10 @@ class Model2D(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
-        self.fc1 = nn.Linear(32 * 101 * 1, 128)
+        self.fc1 = nn.Linear(32 * 6, 128)
         self.bn1 = nn.BatchNorm1d(128)
         self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(128, 100)
+        self.fc2 = nn.Linear(128, act_dim)
 
         # self.body_2 = nn.Sequential(
         #     nn.Linear(32 * 101 * 2, 128),
@@ -115,7 +115,7 @@ class PolicyGradient:
         # logger.info('batch: {}'.format(obses.shape))
         pred = self.model(obses.to(self.device)).cpu()
         # cost = torch.mean(torch.sum(torch.log(pred) * one_hots * rewards, dim=1))
-        cost = torch.sum(torch.log(pred) * one_hots * rewards)
+        cost = torch.sum(-1 * torch.log(pred) * one_hots * rewards)
         cost /= pred.shape[0]
         cost.backward()
         clip_value = 1.0
@@ -186,11 +186,10 @@ class Agent:
     
     def learn_by_batch(self, obs_list, action_list, reward_list):
         batch_size = len(obs_list)
-        obs = torch.Tensor(batch_size,  self.obs_dim)
+        obs = torch.stack(obs_list, dim=0)
         actions = torch.LongTensor(batch_size, self.participant_nums)
         rewards = torch.Tensor(batch_size, 1)
         for i in range(batch_size):
-            obs[i] = torch.Tensor(obs_list[i])
             actions[i] = torch.LongTensor(action_list[i])
             rewards[i] = reward_list[i]
         one_hots = torch.zeros(batch_size, self.act_dim).scatter(1, actions, torch.ones(batch_size, self.act_dim))

@@ -59,8 +59,7 @@ def evaluate(env:Env, agent:Agent, render=False):
         eval_reward.append(episode_reward)
     return np.mean(eval_reward)
 
-def spearman(env:Env, agent:Agent):
-    obs = env.state
+def spearman(obs, env:Env, agent:Agent):
     agent.eval()
     act_prob = agent.predict(obs).squeeze().detach().cpu()
     x = [act_prob[i] for i in env.rank]

@@ -104,17 +104,15 @@ class ReplayMemory(object):
         for idx in range(first, first+hdim):
             log_list.append(self.buffer[idx].encoding(client_nums))
         obs = torch.stack(log_list, dim=0)
-        # obs = self.buffer[first].encoding(client_nums)
-        # for idx in range(first+1, first+hdim):
-        #     obs = torch.stack([obs, self.buffer[idx].encoding(client_nums)], dim=0)
-        return obs.unsqueeze(0)
+        return obs.unsqueeze(0).unsqueeze(0)
     
     def __sample_single_history2D(self, hdim, client_nums, first=-1):
         if first == -1:
             first = random.choice(0, len(self.buffer)-1)
-        history = self.buffer[first].encoding(client_nums)
-        for idx in range(first+1, first+hdim):
-            history = torch.stack([history, self.buffer[idx].encoding], dim=0)
+        log_list = []
+        for idx in range(first, first+hdim):
+            log_list.append(self.buffer[idx].encoding(client_nums))
+        history = torch.stack(log_list, dim=0)
         action = self.buffer[first+hdim].action()
         reward = self.buffer[first+hdim].reward()
         return history.unsqueeze(0), action, reward
@@ -123,7 +121,7 @@ class ReplayMemory(object):
         batch_size = min(batch_size, len(self.buffer)-hdim)
         assert batch_size > 0
 
-        indexes = random.sample(range(0, len(self.buffer)-1), batch_size)
+        indexes = random.sample(range(0, len(self.buffer)-hdim), batch_size)
         obs_list = []
         action_list = []
         reward_list = []

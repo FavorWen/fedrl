@@ -114,21 +114,21 @@ for i in range(5):
     while True:
         obs = rpm.latestObs(history_dim, client_nums)
         action, act_prob = agent.sample(obs) # 采样动作
-        next_obs, reward, done, _, acc  = env.step(action)
-        rpm.append((action, reward, acc))
-        if rpm.isHistoryReady(history_pool, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
+        reward, acc, action, done = env.step(action)
+        rpm.append(action, reward, acc)
+        if rpm.isHistoryReady(history_dim, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
             for k in range(MULTI_LEARN_):
                 batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,client_nums=client_nums, batch_size=MEMORY_BATCHSIZE)
                 # agent.learn(batch_obs, batch_action, batch_reward)
                 agent.learn_by_batch(batch_obs, batch_action, batch_reward)
-            spearman_co = spearman(env, agent)
+            spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
             logger.info('Tick {} Spearman co: {}'.format(env.tick, spearman_co))
-        if len(rpm) < MEMORY_WARMUP_SIZE:
+        if not rpm.isHistoryReady(history_dim, MEMORY_WARMUP_SIZE):
             logger.info('Tick {} Accumulating memory'.format(env.tick))
 
         if env.tick % 10 == 0:
             acc, loss = env.validate(env.testset)
-            spearman_co = spearman(env, agent)
+            spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
             logger.info('{} Tick {} Spearman co: {}, Test Acc: {}, Test Loss: {}'.format(i+1, env.tick, spearman_co, acc, loss))
 
         if done:
@@ -138,7 +138,7 @@ for i in range(5):
     # with open(experience_path, 'wb') as f:
     #     pickle.dump(log_saver, f)
 
-    spearman_co = spearman(env, agent)
+    spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
     if (i + 1) % 100 == 0:
         total_reward = evaluate(env, agent, render=False) # render=True 查看渲染效果，需要在本地运行，AIStudio无法显示
         logger.info('Test reward: {}, Spearman co: {}'.format(total_reward, spearman_co))
@@ -148,4 +148,4 @@ for i in range(5):
 
 # 保存模型到文件 ./model.ckpt
 # agent.save('./model.ckpt')
-# nohup python main_rpm.py --history_dim 4 --client_nums 100 --participant_nums 10 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cpu --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cuda --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
