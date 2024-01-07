@@ -15,7 +15,7 @@ from fedlab.utils.dataset import FMNISTPartitioner
 from fedlab.utils.dataset import MNISTPartitioner
 
 class Env:
-    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, log_saver:LogSaver, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='../data'):
+    def __init__(self, obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, log_saver:LogSaver, optimizer="SGD", lr=0.01, epoch=1, rl_ddl = 100, batch_size=32, dst_path='/root/autodl-tmp/datasets'):
         self.obs_dim = obs_dim # x1的维度
         self.arch_name = arch_name # 联邦学习目标模型的名字
         self.client_nums = client_nums # 客户端的总数
@@ -46,8 +46,9 @@ class Env:
             _state[i*base + self.client_nums] = loss
             for j in participants:
                 _state[i*base + j] = 1
-            self.log_saver.updateLog((participants, loss))
+            self.log_saver.updateLog((participants, loss, acc))
         self.state[0] = _state
+        self.log_saver.finishInit()
         return self.state
     def update_state(self, action, loss):
         r = int(self.obs_dim / (self.client_nums+1))

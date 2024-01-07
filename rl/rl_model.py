@@ -24,9 +24,14 @@ class Model(nn.Module):
         # hid2_size = hid1_size * 10 * 2 # 1024 * 10 * 2 = 20480
         # hid1_size = 1024 * 3
         # hid2_size = 10240 * 3
-        hid1_size = 2048
+
+        # hid1_size = 2048
+        # hid2_size = 20480
+        # hid3_size = hid2_size
+
+        hid1_size = 20480 * 2
         hid2_size = 20480
-        hid3_size = hid2_size
+        hid3_size = 2048
         self.body = nn.Sequential(
             nn.Linear(obs_dim,hid1_size),
             # nn.BatchNorm1d(hid1_size),
@@ -40,6 +45,13 @@ class Model(nn.Module):
             nn.Linear(hid3_size,act_dim),
             nn.Softmax(dim=1),
         )
+        # for idx, layer in enumerate(self.body):
+        #     if isinstance(layer, nn.Linear):
+        #         if idx == len(self.body)-1:
+        #             nn.init.xavier_uniform_(layer.weight)
+        #         else:
+        #             nn.init.kaiming_uniform_(layer.weight, mode='fan_in', nonlinearity='relu')
+
     def forward(self, obs):
         return self.body(obs)
 
@@ -48,7 +60,7 @@ class PolicyGradient:
         self.model = model
         self.lr = lr
         self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr, momentum=0.9, weight_decay=10e-4)
-        # self.optimizer = torch.optim.Adam(model.parameters())
+        # self.optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
         self.device=device
 
     def eval(self):
@@ -61,11 +73,14 @@ class PolicyGradient:
     def learn_by_batch(self, obses, actions, rewards, one_hots):
         self.optimizer.zero_grad()
         self.model.train()
+        # logger.info('batch: {}'.format(obses.shape))
         pred = self.model(obses.to(self.device)).cpu()
         # cost = torch.mean(torch.sum(torch.log(pred) * one_hots * rewards, dim=1))
         cost = torch.sum(torch.log(pred) * one_hots * rewards)
         cost /= pred.shape[0]
         cost.backward()
+        clip_value = 1.0
+        nn.utils.clip_grad_norm_(self.model.parameters(), clip_value)
         self.optimizer.step()
 
     
@@ -112,18 +127,22 @@ class Agent:
         self.client_nums = client_nums
         self.lr = lr
         self.device = device
+
+    def eval(self):
+        self.algo.eval()
     
     def sample(self, obs):
         episode = 0.05
         self.algo.eval()
         act_prob =  self.predict(obs).detach().cpu().squeeze().numpy()
+        # logger.info('act_prob: {}'.format(act_prob))
         if np.random.uniform(0, 1, 1)[0] < episode: #以episode的概率随机选择
-            return np.random.choice(range(self.act_dim), size=self.participant_nums, replace=False)
+            return np.random.choice(range(self.act_dim), size=self.participant_nums, replace=False), act_prob
         if np.count_nonzero(act_prob) < self.act_dim:
             act = np.random.choice(range(self.act_dim), size=self.participant_nums, replace=False)
         else:
             act = np.random.choice(range(self.act_dim), size=self.participant_nums, replace=False, p=act_prob)
-        return act
+        return act, act_prob
 
     def predict(self, obs):
         return self.algo.predict(obs)

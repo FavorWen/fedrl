@@ -22,7 +22,7 @@ def run_step_by_step(env:Env, agent:Agent):
     obs_list, action_list, reward_list = [], [], []
     obs = env.reset_light()
     obs_list.append(obs)
-    action = agent.sample(obs) # 采样动作
+    action, _ = agent.sample(obs) # 采样动作
     action_list.append(action)
 
 def run_episode(env:Env, agent:Agent):
@@ -30,7 +30,7 @@ def run_episode(env:Env, agent:Agent):
     obs = env.reset()
     while True:
         obs_list.append(obs)
-        action = agent.sample(obs) # 采样动作
+        action, _  = agent.sample(obs) # 采样动作
         action_list.append(action)
 
         obs, reward, done = env.step(action)
@@ -51,7 +51,7 @@ def evaluate(env:Env, agent:Agent, render=False):
         obs = env.reset_light()
         episode_reward = 0
         while True:
-            action = agent.sample(obs) # 选取最优动作
+            action, _ = agent.sample(obs) # 选取最优动作
             obs, reward, isOver = env.step(action)
             episode_reward += reward
             if isOver:
@@ -61,6 +61,7 @@ def evaluate(env:Env, agent:Agent, render=False):
 
 def spearman(env:Env, agent:Agent):
     obs = env.state
+    agent.eval()
     act_prob = agent.predict(obs).squeeze().detach().cpu()
     x = [act_prob[i] for i in env.rank]
     y = [c for c in range(env.client_nums)]

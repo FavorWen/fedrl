@@ -56,10 +56,22 @@ env = Env(obs_dim, arch_name, client_nums, participant_nums, dataset_name, parti
 logger.info('obs_dim {}, act_dim {}'.format(obs_dim, act_dim))
 
 
+# MEMORY_SIZE = 16
+# MEMORY_BATCHSIZE = 8
+# LEARN_FREQ = 5
+# MEMORY_WARMUP_SIZE = 6
+# MULTI_LEARN_ = 2
+
+# MEMORY_SIZE = 32
+# MEMORY_BATCHSIZE = 16
+# LEARN_FREQ = 5
+# MEMORY_WARMUP_SIZE = 6
+# MULTI_LEARN_ = 2
+
 MEMORY_SIZE = 64
 MEMORY_BATCHSIZE = 32
 LEARN_FREQ = 5
-MEMORY_WARMUP_SIZE = 12
+MEMORY_WARMUP_SIZE = 6
 MULTI_LEARN_ = 2
 rpm = ReplayMemory(MEMORY_SIZE)
 logger.info('Settings: {}'.format(args))
@@ -88,7 +100,7 @@ agent = Agent(alg, obs_dim=obs_dim, act_dim=act_dim, participant_nums=participan
 #     run_episode(env, agent, train_or_test='test', render=True)
 #     exit()
 
-experience_path = "train_data/seed{}_arch{}_dataset{}_nums{}_part{}.elog".format(seed, arch_name, dataset_name, client_nums, partition)
+experience_path = "train_data/seed{}_arch{}_dataset{}_nums{}_select{}_part{}.elog".format(seed, arch_name, dataset_name, client_nums, participant_nums, partition)
 
 env.reset()
 
@@ -98,9 +110,9 @@ for i in range(5):
     obs = env.reset_light()
     # obs_list, action_list, reward_list = [], [], []
     while True:
-        action = agent.sample(obs) # 采样动作
-        next_obs, reward, done, _, _  = env.step(action)
-        log_saver.updateLog((action, reward))
+        action, act_prob = agent.sample(obs) # 采样动作
+        next_obs, reward, done, _, acc  = env.step(action)
+        log_saver.updateLog((action, act_prob, reward, acc))
         rpm.append((obs, action, reward, next_obs, done))
 
         if (len(rpm) >= MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
@@ -116,7 +128,7 @@ for i in range(5):
         if env.tick % 10 == 0:
             acc, loss = env.validate(env.testset)
             spearman_co = spearman(env, agent)
-            logger.info('Tick {} Spearman co: {}, Test Acc: {}, Test Loss: {}'.format(env.tick, spearman_co, acc, loss))
+            logger.info('{} Tick {} Spearman co: {}, Test Acc: {}, Test Loss: {}'.format(i+1, env.tick, spearman_co, acc, loss))
 
         if done:
             break

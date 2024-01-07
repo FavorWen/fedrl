@@ -82,15 +82,17 @@ class Partitioner:
         elif self.partition == "label-skew":
             part = partitioner(trainset.targets,
                                   self.client_nums,
-                                  partition="noniid-#label",
-                                  major_classes_num=5,
-                                  dir_alpha=0.7,
+                                #   partition="noniid-#label",
+                                #   major_classes_num=5,
+                                #   dir_alpha=0.7,
+                                  partition="noniid-labeldir", 
+                                  dir_alpha=0.5,
                                   seed=self.seed)
         elif self.partition == "quantity-skew":
             part = partitioner(trainset.targets,
                                   self.client_nums,
                                   partition="unbalance",
-                                  dir_alpha=0.7,
+                                  dir_alpha=0.5,
                                   seed=self.seed)
         else:
             exit("No such partition")

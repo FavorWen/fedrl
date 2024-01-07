@@ -63,8 +63,9 @@ class CnnNet(nn.Module):
                 nn.MaxPool2d(2,2,0),#[20, 6, 6]
             )
             self.fc = nn.Sequential(
-                nn.Linear(20*6*6, 84),
-                nn.Linear(84, 10)
+                # nn.Linear(20*6*6, 84),
+                # nn.Linear(84, 10)
+                nn.Linear(20*6*6, 10)
             )
         if dstName == 'MINIST'  or dstName == "MNIST" or dstName == 'FMNIST':
             # input [1, 28, 28]
@@ -80,8 +81,9 @@ class CnnNet(nn.Module):
                 nn.MaxPool2d(2,2,0),#[10, 7, 7]
             )
             self.fc = nn.Sequential(
-                nn.Linear(250, 84),
-                nn.Linear(84, 10)
+                # nn.Linear(250, 84),
+                # nn.Linear(84, 10)
+                nn.Linear(250, 10)
             )
     def forward(self, x):
         out = self.body(x)

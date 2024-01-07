@@ -55,10 +55,14 @@ class LogSaver(object):
         self.history_pool = []
         self.rank = None
         self.history = []
+        self.history_dim = 0
+    
+    def finishInit(self):
+        self.history_dim = len(self.history)
 
     def flush(self):
         self.rank_pool.append(self.rank)
-        self.history.append(self.history)
+        self.history_pool.append(self.history)
         self.rank = None
         self.history = []
         self.size += 1
