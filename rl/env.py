@@ -29,40 +29,23 @@ class Env:
         self.lr=lr
         self.epoch=epoch
         self.batch_size=batch_size
-        self.state = torch.zeros(1, obs_dim)
         self.tick = 0
         self.rl_ddl = rl_ddl
         self.dst_path = dst_path
         self.log_saver = log_saver
         assert obs_dim % (client_nums+1) == 0
     def init_state(self):
-        _state = self.state[0]
+        logs = []
         r = int(self.obs_dim / (self.client_nums+1))
         base = self.client_nums+1
         self.log_saver.setRank(self.rank)
         for i in range(0, r):
             participants = self.server.run()
             acc, loss = self.validate(self.valset)
-            _state[i*base + self.client_nums] = loss
-            for j in participants:
-                _state[i*base + j] = 1
+            logs.append(participants, loss, acc)
             self.log_saver.updateLog((participants, loss, acc))
-        self.state[0] = _state
         self.log_saver.finishInit()
-        return self.state
-    def update_state(self, action, loss):
-        r = int(self.obs_dim / (self.client_nums+1))
-        base = self.client_nums+1
-        _state = self.state[0]
-        for i in range(0, (r-1)*base):
-            _state[i] = _state[i+base]
-        for j in range(0, base):
-            if j in action:
-                _state[(r-1)*base+j] = 1
-            else:
-                _state[(r-1)*base+j] = 0
-        self.state[0] = _state
-        return self.state
+        return logs
 
     def init_dataset(self):
         #划分数据，训练集，（测试集, 验证集）
@@ -128,7 +111,5 @@ class Env:
         # 优化目标是使得-loss最小
         participants = self.server.run(action)
         acc, loss = self.validate(self.valset)
-        if type(action) != type(None):
-            self.update_state(action, loss)
         self.tick += 1
         return self.state, loss, self.tick >= self.rl_ddl, participants, acc

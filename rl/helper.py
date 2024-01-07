@@ -74,9 +74,65 @@ class LogSaver(object):
         self.history.append(log)
 
 class ReplayMemory(object):
+    class Log(object):
+        def __init__(self, participants, loss, acc):
+            self.participants = participants
+            self.loss = loss
+            self.acc = acc
+        def encoding(self, dim):
+            return torch.cat(torch.zeros(dim), torch.tensor([loss]))
+        def action(self):
+            return self.participants
+        def reward(self):
+            return loss
+    
     def __init__(self, max_size=12):
         self.buffer = collections.deque(maxlen=max_size)
 
+    def append(self, participants, loss, acc):
+        self.buffer.append(Log(participants, loss, acc))
+
+    def isHistoryReady(hdim, batch_size=1):
+        return len(self.buffer) > hdim && len(self.buffer)-hdim >= batch_size
+    
+    def latestObs(hdim):
+        first = len(self.buffer)-hdim
+        obs = self.buffer[first].encoding()
+        for idx in range(first+1, first+hdim):
+            obs = torch.stack([history, self.buffer[idx].encoding], dim=0)
+        return obs
+    
+    def __sample_single_history2D(hdim, first=-1):
+        if first == -1:
+            first = random.choice(0, len(self.buffer)-1)
+        history = self.buffer[first].encoding()
+        for idx in range(first+1, first+hdim):
+            history = torch.stack([history, self.buffer[idx].encoding], dim=0)
+        action = self.buffer[first+hdim].action()
+        reward = self.buffer[first+hdim].reward()
+        return history, action, reward
+
+    def sample2D(hdim, batch_size=1):
+        batch_size = min(batch_size, len(self.buffer)-hdim)
+        assert batch_size > 0
+        
+        indexes = random.sample(range(0, len(self.buffer)-1), batch_size)
+        obs_list = []
+        action_list = []
+        reward_list = []
+        for i in indexes:
+            obs, action, reward = self.__sample_single_history2D(hdim, i)
+            obs_list.append(obs)
+            action_list.append(action)
+            reward_list.append(reward)
+        return obs_list, action_list, reward_list
+# l1
+# l2
+# l3
+# l4
+# l5
+# l6
+# l7
     # 增加一条经验到经验池中
     def append(self, exp):
         self.buffer.append(exp)

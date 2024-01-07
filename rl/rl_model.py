@@ -15,6 +15,36 @@ logger.setLevel(logging.INFO)
 # [1, 0, 1, 1, 0, 0.77] -> [action + reward]
 # [1, 0, 1, 0, 1, 0.70, 1, 0, 1, 1, 0, 0.77] - > update obs
 
+class Model2D(nn.Module):
+    def __init__(self, obs_dim, act_dim):
+        super().__init__()
+        self.obs_dim = obs_dim
+        self.act_dim = act_dim
+
+        self.body_1 = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self.body_2 = nn.Sequential(
+            nn.Linear(32 * 101 * 2, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Linear(128, 100),
+        )
+    def forward(self, obs):
+        x = self.body_1(obs)
+        x = x.view(x.size(0), -1)
+        x = self.body_2(obs)
+        return F.softmax(x, dim=1)
+
 class Model(nn.Module):
     def __init__(self, obs_dim=20, act_dim=5):
         super().__init__()

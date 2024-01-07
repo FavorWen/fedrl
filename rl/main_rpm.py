@@ -107,17 +107,18 @@ env.reset()
 
 for i in range(5):
     logger.info("Train Round {}".format(i+1))
-    obs = env.reset_light()
+    logs = env.reset_light()
+    for log in logs:
+        rpm.append(*log)
     # obs_list, action_list, reward_list = [], [], []
     while True:
+        obs = rpm.latestObs(hdim=history_dim)
         action, act_prob = agent.sample(obs) # 采样动作
         next_obs, reward, done, _, acc  = env.step(action)
-        log_saver.updateLog((action, act_prob, reward, acc))
-        rpm.append((obs, action, reward, next_obs, done))
-
+        rpm.append((action, reward, acc))
         if (len(rpm) >= MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
             for k in range(MULTI_LEARN_):
-                (batch_obs, batch_action, batch_reward, batch_next_obs, batch_done) = rpm.sample(MEMORY_BATCHSIZE)
+                batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,batch_size=MEMORY_BATCHSIZE)
                 # agent.learn(batch_obs, batch_action, batch_reward)
                 agent.learn_by_batch(batch_obs, batch_action, batch_reward)
             spearman_co = spearman(env, agent)
@@ -132,10 +133,10 @@ for i in range(5):
 
         if done:
             break
-    log_saver.flush()
+    # log_saver.flush()
 
-    with open(experience_path, 'wb') as f:
-        pickle.dump(log_saver, f)
+    # with open(experience_path, 'wb') as f:
+    #     pickle.dump(log_saver, f)
 
     spearman_co = spearman(env, agent)
     if (i + 1) % 100 == 0:

@@ -73,7 +73,7 @@ class CnnNet(nn.Module):
                 nn.Conv2d(1, 5, kernel_size=5, padding=1, stride=1), # [5, 28, 28]
                 nn.BatchNorm2d(5),
                 nn.ReLU(),
-                nn.MaxPool2d(2,2,0),# [5, 14, 14]
+                nn.MaxPool2d(2,2,0),# [5, 14, 14]c
 
                 nn.Conv2d(5, 10, kernel_size=5, padding=1, stride=1), # [10, 14, 14]
                 nn.BatchNorm2d(10),
