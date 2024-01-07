@@ -42,7 +42,7 @@ class Env:
         for i in range(0, r):
             participants = self.server.run()
             acc, loss = self.validate(self.valset)
-            logs.append(participants, loss, acc)
+            logs.append((participants, loss, acc))
             self.log_saver.updateLog((participants, loss, acc))
         self.log_saver.finishInit()
         return logs

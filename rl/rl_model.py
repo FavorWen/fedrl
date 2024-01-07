@@ -33,16 +33,25 @@ class Model2D(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
-        self.body_2 = nn.Sequential(
-            nn.Linear(32 * 101 * 2, 128),
-            nn.BatchNorm1d(128),
-            nn.ReLU(),
-            nn.Linear(128, 100),
-        )
+        self.fc1 = nn.Linear(32 * 101 * 1, 128)
+        self.bn1 = nn.BatchNorm1d(128)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(128, 100)
+
+        # self.body_2 = nn.Sequential(
+        #     nn.Linear(32 * 101 * 2, 128),
+        #     nn.BatchNorm1d(128),
+        #     nn.ReLU(),
+        #     nn.Linear(128, 100),
+        # )
     def forward(self, obs):
         x = self.body_1(obs)
         x = x.view(x.size(0), -1)
-        x = self.body_2(obs)
+        x = self.fc1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        # x = self.body_2(obs)
         return F.softmax(x, dim=1)
 
 class Model(nn.Module):
@@ -117,7 +126,6 @@ class PolicyGradient:
     def batch_learn(self, obs_list, action_list, reward_list):
         self.optimizer.zero_grad()
         self.model.train()
-        torch.cuda.empty_cache()
         cost = 0
         for i in range(len(obs_list)):
             obs = obs_list[i].detach()
@@ -151,7 +159,6 @@ class Agent:
     def __init__(self, algo, obs_dim, act_dim, participant_nums, client_nums, device='cuda',lr=0.1):
         self.act_dim = act_dim
         self.obs_dim = obs_dim
-        self.model = Model(obs_dim, act_dim)
         self.algo = algo
         self.participant_nums = participant_nums
         self.client_nums = client_nums

@@ -73,18 +73,21 @@ class LogSaver(object):
     def updateLog(self, log):
         self.history.append(log)
 
+class Log(object):
+    def __init__(self, participants, loss, acc):
+        self.participants = participants
+        self.loss = loss
+        self.acc = acc
+    def encoding(self, dim):
+        t = torch.zeros(dim)
+        t[self.participants] = 1.0
+        return torch.cat((t, torch.tensor([self.loss])))
+    def action(self):
+        return self.participants
+    def reward(self):
+        return self.loss
+
 class ReplayMemory(object):
-    class Log(object):
-        def __init__(self, participants, loss, acc):
-            self.participants = participants
-            self.loss = loss
-            self.acc = acc
-        def encoding(self, dim):
-            return torch.cat(torch.zeros(dim), torch.tensor([loss]))
-        def action(self):
-            return self.participants
-        def reward(self):
-            return loss
     
     def __init__(self, max_size=12):
         self.buffer = collections.deque(maxlen=max_size)
@@ -92,67 +95,44 @@ class ReplayMemory(object):
     def append(self, participants, loss, acc):
         self.buffer.append(Log(participants, loss, acc))
 
-    def isHistoryReady(hdim, batch_size=1):
-        return len(self.buffer) > hdim && len(self.buffer)-hdim >= batch_size
+    def isHistoryReady(self, hdim, batch_size=2):
+        return len(self.buffer) > hdim and len(self.buffer)-hdim >= batch_size
     
-    def latestObs(hdim):
+    def latestObs(self, hdim, client_nums):
         first = len(self.buffer)-hdim
-        obs = self.buffer[first].encoding()
-        for idx in range(first+1, first+hdim):
-            obs = torch.stack([history, self.buffer[idx].encoding], dim=0)
-        return obs
+        log_list = []
+        for idx in range(first, first+hdim):
+            log_list.append(self.buffer[idx].encoding(client_nums))
+        obs = torch.stack(log_list, dim=0)
+        # obs = self.buffer[first].encoding(client_nums)
+        # for idx in range(first+1, first+hdim):
+        #     obs = torch.stack([obs, self.buffer[idx].encoding(client_nums)], dim=0)
+        return obs.unsqueeze(0)
     
-    def __sample_single_history2D(hdim, first=-1):
+    def __sample_single_history2D(self, hdim, client_nums, first=-1):
         if first == -1:
             first = random.choice(0, len(self.buffer)-1)
-        history = self.buffer[first].encoding()
+        history = self.buffer[first].encoding(client_nums)
         for idx in range(first+1, first+hdim):
             history = torch.stack([history, self.buffer[idx].encoding], dim=0)
         action = self.buffer[first+hdim].action()
         reward = self.buffer[first+hdim].reward()
-        return history, action, reward
+        return history.unsqueeze(0), action, reward
 
-    def sample2D(hdim, batch_size=1):
+    def sample2D(self, hdim, client_nums, batch_size=1):
         batch_size = min(batch_size, len(self.buffer)-hdim)
         assert batch_size > 0
-        
+
         indexes = random.sample(range(0, len(self.buffer)-1), batch_size)
         obs_list = []
         action_list = []
         reward_list = []
         for i in indexes:
-            obs, action, reward = self.__sample_single_history2D(hdim, i)
+            obs, action, reward = self.__sample_single_history2D(hdim, client_nums, i)
             obs_list.append(obs)
             action_list.append(action)
             reward_list.append(reward)
         return obs_list, action_list, reward_list
-# l1
-# l2
-# l3
-# l4
-# l5
-# l6
-# l7
-    # 增加一条经验到经验池中
-    def append(self, exp):
-        self.buffer.append(exp)
-
-    # 从经验池中选取N条经验出来
-    def sample(self, batch_size=6):
-        batch_size = min(batch_size, self.__len__())
-
-        mini_batch = random.sample(self.buffer, batch_size)
-        obs_batch, action_batch, reward_batch, next_obs_batch, done_batch = [], [], [], [], []
-
-        for experience in mini_batch:
-            s, a, r, s_p, done = experience
-            obs_batch.append(s)
-            action_batch.append(a)
-            reward_batch.append(r)
-            next_obs_batch.append(s_p)
-            done_batch.append(done)
-
-        return obs_batch, action_batch, reward_batch, next_obs_batch, done_batch
 
     def __len__(self):
         return len(self.buffer)

@@ -36,6 +36,7 @@ lr = args.lr
 epoch = args.epoch
 rl_ddl = args.rl_ddl
 batch_size = args.batch_size
+history_dim = args.history_dim
 
 
 act_dim = client_nums
@@ -71,9 +72,9 @@ logger.info('obs_dim {}, act_dim {}'.format(obs_dim, act_dim))
 MEMORY_SIZE = 64
 MEMORY_BATCHSIZE = 32
 LEARN_FREQ = 5
-MEMORY_WARMUP_SIZE = 6
+MEMORY_WARMUP_SIZE = 2 # 积累了多少BatchSize
 MULTI_LEARN_ = 2
-rpm = ReplayMemory(MEMORY_SIZE)
+rpm = ReplayMemory(max_size=MEMORY_SIZE)
 logger.info('Settings: {}'.format(args))
 logger.info('Settings: MEMORY_SIZE {}, MEMORY_BATCHSIZE {}, LEARN_FREQ {}, MEMORY_WARMUP_SIZE {}, MULTI_LEARN_ {}'.format(MEMORY_SIZE,MEMORY_BATCHSIZE, LEARN_FREQ, MEMORY_WARMUP_SIZE, MULTI_LEARN_))
 
@@ -83,16 +84,15 @@ out_rpm_seed_2_1.log为基准，测试seed=4时，multi_learn为3，网络隐藏
 采用batch方法进行训练，cost计算方式先sum再除sample个数
 noise thread为标准情况
 """
-
 logger.info(EXPERIENCE_INFO)
 
 # nohup python main_rpm.py --history_dim 2 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
-
-
 # 根据parl框架构建agent
-model = Model(obs_dim, act_dim).to(device)
+# model = Model(obs_dim, act_dim).to(device)
+model = Model2D(obs_dim, act_dim).to(device)
 alg = PolicyGradient(model, lr, device)
-agent = Agent(alg, obs_dim=obs_dim, act_dim=act_dim, participant_nums=participant_nums, client_nums=client_nums, lr=lr)
+agent = Agent(alg, obs_dim=obs_dim, act_dim=act_dim, participant_nums=participant_nums, client_nums=client_nums, lr=lr, device=device)
+
 
 # 加载模型
 # if os.path.exists('./model.ckpt'):
@@ -104,21 +104,21 @@ experience_path = "train_data/seed{}_arch{}_dataset{}_nums{}_select{}_part{}.elo
 
 env.reset()
 
-
 for i in range(5):
     logger.info("Train Round {}".format(i+1))
     logs = env.reset_light()
+    logger.info("Light-Reset completed")
     for log in logs:
         rpm.append(*log)
     # obs_list, action_list, reward_list = [], [], []
     while True:
-        obs = rpm.latestObs(hdim=history_dim)
+        obs = rpm.latestObs(history_dim, client_nums)
         action, act_prob = agent.sample(obs) # 采样动作
         next_obs, reward, done, _, acc  = env.step(action)
         rpm.append((action, reward, acc))
-        if (len(rpm) >= MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
+        if rpm.isHistoryReady(history_pool, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
             for k in range(MULTI_LEARN_):
-                batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,batch_size=MEMORY_BATCHSIZE)
+                batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,client_nums=client_nums, batch_size=MEMORY_BATCHSIZE)
                 # agent.learn(batch_obs, batch_action, batch_reward)
                 agent.learn_by_batch(batch_obs, batch_action, batch_reward)
             spearman_co = spearman(env, agent)
@@ -148,4 +148,4 @@ for i in range(5):
 
 # 保存模型到文件 ./model.ckpt
 # agent.save('./model.ckpt')
-# nohup python main_rpm.py --history_dim 10 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch RESNET18 --partition iid --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 100 --participant_nums 10 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cpu --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
