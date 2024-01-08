@@ -81,10 +81,10 @@ logger.info('Settings: MEMORY_SIZE {}, MEMORY_BATCHSIZE {}, LEARN_FREQ {}, MEMOR
 EXPERIENCE_INFO = """
 out_rpm_seed_2_1.log为基准，测试seed=4时，multi_learn为3，网络隐藏层20倍，优化器为SGD,学习率为0.001，weight_decay=10e-4,观察结果作为其他实验基准
 网络结构:
-        p_hidden_size = 1024 * 2
-        l_hidden_size = 512 * 2
-        hidden_size = 1024 * 2
-        num_blocks = 32
+        p_hidden_size = 1024
+        l_hidden_size = 512
+        hidden_size = 1024
+        num_blocks = 32 * 4
         网络最后一层softmax，在sample时去掉softmax
         cost = torch.sum(pred * one_hots * rewards)
         cost /= pred.shape[0]
@@ -95,7 +95,7 @@ noise thread为标准情况
 logger.info(EXPERIENCE_INFO)
 
 # nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
-# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-6-seed2.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-7-seed2.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
 model = ModelRes(obs_dim, act_dim).to(device)
