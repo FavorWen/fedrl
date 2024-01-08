@@ -37,10 +37,10 @@ class ModelRes(nn.Module):
         super().__init__()
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        p_hidden_size = 1024
-        l_hidden_size = 512
-        hidden_size = 512
-        num_blocks = 24
+        p_hidden_size = 1024 * 2
+        l_hidden_size = 512 * 2
+        hidden_size = 1024 * 2
+        num_blocks = 32 
         hdim = obs_dim // (act_dim+1)
 
         self.participant_branch = nn.Sequential(
@@ -134,12 +134,23 @@ class PolicyGradient:
         self.model.train()
         # logger.info('batch: {}'.format(obses.shape))
         pred = self.model(obses.to(self.device)).cpu()
-        # cost = torch.mean(torch.sum(torch.log(pred) * one_hots * rewards, dim=1))
-        cost = torch.sum(torch.log(pred) * one_hots * rewards)
+
+        # cost = torch.mean(-1 * torch.sum(torch.log(pred) * one_hots * rewards, dim=1))
+
+        # f = nn.BCEWithLogitsLoss()
+        # cost = f(pred, one_hots.float()) * torch.mean(rewards)
+
+        # cost = torch.sum(-1 * torch.log(pred) * one_hots * rewards)
+        # cost /= pred.shape[0]
+        cost = torch.sum(pred * one_hots * rewards)
         cost /= pred.shape[0]
+
+        # pred = F.softmax(pred, dim=-1)
+        
+        # cost = torch.mean(-1 * torch.log(pred) * one_hots * rewards)
         cost.backward()
-        clip_value = 1.0
-        nn.utils.clip_grad_norm_(self.model.parameters(), clip_value)
+        # clip_value = 1.0
+        # nn.utils.clip_grad_norm_(self.model.parameters(), clip_value)
         self.optimizer.step()
 
     
@@ -192,6 +203,7 @@ class Agent:
         episode = 0.05
         self.algo.eval()
         act_prob =  self.predict(obs).detach().cpu().squeeze().numpy()
+        # act_prob = F.softmax(act_prob, dim=-1).numpy()
         # logger.info('act_prob: {}'.format(act_prob))
         if np.random.uniform(0, 1, 1)[0] < episode: #以episode的概率随机选择
             return np.random.choice(range(self.act_dim), size=self.participant_nums, replace=False), act_prob

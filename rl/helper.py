@@ -7,6 +7,11 @@ import collections
 import pickle
 import scipy
 
+import logging
+
+logger = logging.getLogger('')
+logger.setLevel(logging.INFO)
+
 def setup_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -87,15 +92,18 @@ class Log(object):
     def reward(self):
         return self.loss
 
+
 class ReplayMemory(object):
     
-    def __init__(self, max_size=12):
-        self.buffer = collections.deque(maxlen=max_size)
+    def __init__(self, latest_size=12):
+        self.latest_size = latest_size
+        self.buffer = collections.deque()
 
     def append(self, participants, loss, acc):
         self.buffer.append(Log(participants, loss, acc))
 
-    def isHistoryReady(self, hdim, batch_size=2):
+    def isHistoryReady(self, hdim, rl_ddl, batch_size=2):
+        return len(self.__usabel_indexes(hdim=hdim, rl_ddl=rl_ddl)) >= batch_size
         return len(self.buffer) > hdim and len(self.buffer)-hdim >= batch_size
     
     def latestObs(self, hdim, client_nums):
@@ -116,12 +124,23 @@ class ReplayMemory(object):
         action = self.buffer[first+hdim].action()
         reward = self.buffer[first+hdim].reward()
         return history.unsqueeze(0), action, reward
+    
+    def __usabel_indexes(self, hdim, rl_ddl):
+        forbidded = []
+        # 50是随便取的一个比较大的数
+        for n in range(1, 50):
+            forbidded += [i for i in range((rl_ddl+hdim-1)*n - hdim+1, (rl_ddl+hdim-1)*n + 1)]
+        forbidded = set(forbidded)
+        indexes = list(range(0, len(self.buffer)-hdim))
+        indexes = [item for item in indexes if item not in forbidded][-self.latest_size:]
+        return indexes
 
-    def sample2D(self, hdim, client_nums, batch_size=1):
+    def sample2D(self, hdim, client_nums, rl_ddl, batch_size=1):
         batch_size = min(batch_size, len(self.buffer)-hdim)
         assert batch_size > 0
 
-        indexes = random.sample(range(0, len(self.buffer)-hdim), batch_size)
+        indexes = self.__usabel_indexes(hdim=hdim, rl_ddl=rl_ddl)
+        indexes = random.sample(indexes, batch_size)
         obs_list = []
         action_list = []
         reward_list = []

@@ -74,19 +74,28 @@ MEMORY_BATCHSIZE = 32
 LEARN_FREQ = 5
 MEMORY_WARMUP_SIZE = 2 # 积累了多少BatchSize
 MULTI_LEARN_ = 2
-rpm = ReplayMemory(max_size=MEMORY_SIZE)
+rpm = ReplayMemory(latest_size=MEMORY_SIZE)
 logger.info('Settings: {}'.format(args))
 logger.info('Settings: MEMORY_SIZE {}, MEMORY_BATCHSIZE {}, LEARN_FREQ {}, MEMORY_WARMUP_SIZE {}, MULTI_LEARN_ {}'.format(MEMORY_SIZE,MEMORY_BATCHSIZE, LEARN_FREQ, MEMORY_WARMUP_SIZE, MULTI_LEARN_))
 
 EXPERIENCE_INFO = """
 out_rpm_seed_2_1.log为基准，测试seed=4时，multi_learn为3，网络隐藏层20倍，优化器为SGD,学习率为0.001，weight_decay=10e-4,观察结果作为其他实验基准
-网络宽度固定为1024 * 3，1024 * 10 * 3， 1024 * 10 * 3
+网络结构:
+        p_hidden_size = 1024 * 2
+        l_hidden_size = 512 * 2
+        hidden_size = 1024 * 2
+        num_blocks = 32
+        网络最后一层softmax，在sample时去掉softmax
+        cost = torch.sum(pred * one_hots * rewards)
+        cost /= pred.shape[0]
+
 采用batch方法进行训练，cost计算方式先sum再除sample个数
 noise thread为标准情况
 """
 logger.info(EXPERIENCE_INFO)
 
-# nohup python main_rpm.py --history_dim 2 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 3 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-6-seed3.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
 model = ModelRes(obs_dim, act_dim).to(device)
@@ -116,9 +125,9 @@ for i in range(5):
         action, act_prob = agent.sample(obs) # 采样动作
         reward, acc, action, done = env.step(action)
         rpm.append(action, reward, acc)
-        if rpm.isHistoryReady(history_dim, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
+        if rpm.isHistoryReady(history_dim, rl_ddl, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
             for k in range(MULTI_LEARN_):
-                batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,client_nums=client_nums, batch_size=MEMORY_BATCHSIZE)
+                batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,client_nums=client_nums, rl_ddl=rl_ddl, batch_size=MEMORY_BATCHSIZE)
                 # agent.learn(batch_obs, batch_action, batch_reward)
                 agent.learn_by_batch(batch_obs, batch_action, batch_reward)
             spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
