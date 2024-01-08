@@ -9,6 +9,7 @@ echo seed=$seed
 datasets=('CIFAR10')
 arches=('CNN')
 partitions=('iid')
+seeds=(5 4 3 2)
 nums=25
 partin=5
 # 25 - 5
@@ -17,21 +18,10 @@ partin=5
 for dataset in "${datasets[@]}"; do
     for arch in "${arches[@]}"; do
         for partition in "${partitions[@]}"; do
-            log_path="train_log/seed${seed}_arch${arch}_dataset${dataset}_nums${nums}_part${partition}.run.clip.log"
-            python main_rpm.py --history_dim=4 --client_nums $nums --participant_nums $partin --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-            python main_rpm.py --history_dim=4 --client_nums 50 --participant_nums 10 --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-            python main_rpm.py --history_dim=4 --client_nums $nums --participant_nums $partin --seed 4 --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-            python main_rpm.py --history_dim=4 --client_nums 50 --participant_nums 10 --seed 4 --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-            python main_rpm.py --history_dim=4 --client_nums $nums --participant_nums $partin --seed 5 --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-            python main_rpm.py --history_dim=4 --client_nums 50 --participant_nums 10 --seed 5 --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-
-
-
+            for seed in "${seeds[@]}"; do
+                log_path="res-8-seed${seed}.log"
+                python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed $seed --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path
+            done
             # python main_rpm.py --history_dim=8 --client_nums $nums --participant_nums $partin --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
         done
     done
