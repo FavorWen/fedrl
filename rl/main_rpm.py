@@ -148,4 +148,4 @@ for i in range(5):
 
 # 保存模型到文件 ./model.ckpt
 # agent.save('./model.ckpt')
-# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cpu --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &

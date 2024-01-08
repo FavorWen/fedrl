@@ -37,14 +37,10 @@ class ModelRes(nn.Module):
         super().__init__()
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        # p_hidden_size = 1024
-        # l_hidden_size = 512
-        # hidden_size = 512
-        # num_blocks = 12
-        p_hidden_size = 50
-        l_hidden_size = 50
-        hidden_size = 50
-        num_blocks = 2
+        p_hidden_size = 1024
+        l_hidden_size = 512
+        hidden_size = 512
+        num_blocks = 24
         hdim = obs_dim // (act_dim+1)
 
         self.participant_branch = nn.Sequential(
@@ -139,7 +135,7 @@ class PolicyGradient:
         # logger.info('batch: {}'.format(obses.shape))
         pred = self.model(obses.to(self.device)).cpu()
         # cost = torch.mean(torch.sum(torch.log(pred) * one_hots * rewards, dim=1))
-        cost = torch.sum(-1 * torch.log(pred) * one_hots * rewards)
+        cost = torch.sum(torch.log(pred) * one_hots * rewards)
         cost /= pred.shape[0]
         cost.backward()
         clip_value = 1.0
