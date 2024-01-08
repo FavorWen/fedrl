@@ -89,7 +89,7 @@ logger.info(EXPERIENCE_INFO)
 # nohup python main_rpm.py --history_dim 2 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
-model = Model2D(obs_dim, act_dim).to(device)
+model = ModelRes(obs_dim, act_dim).to(device)
 alg = PolicyGradient(model, lr, device)
 agent = Agent(alg, obs_dim=obs_dim, act_dim=act_dim, participant_nums=participant_nums, client_nums=client_nums, lr=lr, device=device)
 
@@ -148,4 +148,4 @@ for i in range(5):
 
 # 保存模型到文件 ./model.ckpt
 # agent.save('./model.ckpt')
-# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cuda --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --device cpu --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed5_1.log 2>&1 &

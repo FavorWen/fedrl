@@ -15,44 +15,68 @@ logger.setLevel(logging.INFO)
 # [1, 0, 1, 1, 0, 0.77] -> [action + reward]
 # [1, 0, 1, 0, 1, 0.70, 1, 0, 1, 1, 0, 0.77] - > update obs
 
-class Model2D(nn.Module):
+class ResidualBlock(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(ResidualBlock, self).__init__()
+
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, input_size)
+
+    def forward(self, x):
+        residual = x
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x += residual  # 跳跃连接
+        x = self.relu(x)
+        return x
+
+class ModelRes(nn.Module):
     def __init__(self, obs_dim, act_dim):
         super().__init__()
         self.obs_dim = obs_dim
         self.act_dim = act_dim
+        # p_hidden_size = 1024
+        # l_hidden_size = 512
+        # hidden_size = 512
+        # num_blocks = 12
+        p_hidden_size = 50
+        l_hidden_size = 50
+        hidden_size = 50
+        num_blocks = 2
+        hdim = obs_dim // (act_dim+1)
 
-        self.body_1 = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+        self.participant_branch = nn.Sequential(
+            nn.Linear(hdim * act_dim, p_hidden_size),
+            nn.ReLU()
         )
-
-        self.fc1 = nn.Linear(32 * 6, 128)
-        self.bn1 = nn.BatchNorm1d(128)
-        self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(128, act_dim)
-
-        # self.body_2 = nn.Sequential(
-        #     nn.Linear(32 * 101 * 2, 128),
-        #     nn.BatchNorm1d(128),
-        #     nn.ReLU(),
-        #     nn.Linear(128, 100),
-        # )
+        self.loss_branch = nn.Sequential(
+            nn.Linear(hdim, l_hidden_size),
+            nn.ReLU()
+        )
+        self.merge = nn.Sequential(
+            nn.Linear(p_hidden_size + l_hidden_size, hidden_size),
+            nn.ReLU()
+        )
+        self.res_blocks = nn.Sequential(*[ResidualBlock(hidden_size, hidden_size) for _ in range(num_blocks)])
+        self.net = nn.Sequential(
+            self.merge,
+            self.res_blocks,
+            nn.Linear(hidden_size, act_dim),
+            nn.Softmax(dim=1),
+        )
+    def transfer(self, x):
+        p = x[..., :-1]
+        l = x[..., -1:]
+        return p.reshape(p.size(0), -1), l.reshape(l.size(0), -1)
     def forward(self, obs):
-        x = self.body_1(obs)
-        x = x.view(x.size(0), -1)
-        x = self.fc1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
-        # x = self.body_2(obs)
-        return F.softmax(x, dim=1)
+        p, l = self.transfer(obs)
+        pb = self.participant_branch(p)
+        lb = self.loss_branch(l)
+        obs = torch.cat([pb, lb], dim=-1)
+        return self.net(obs)
+
 
 class Model(nn.Module):
     def __init__(self, obs_dim=20, act_dim=5):
