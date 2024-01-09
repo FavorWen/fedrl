@@ -127,7 +127,7 @@ class ReplayMemory(object):
         history = torch.stack(log_list, dim=0)
         action = self.buffer[first+hdim].action()
         # 改变reward, 让d=lossi - loss_i-1, d越小好
-        reward = self.buffer[first+hdim].reward() - baseline
+        reward = self.buffer[first+hdim].reward() - self.buffer[first+hdim-1].reward()
         return history.unsqueeze(0), action, reward
     
     def __usabel_indexes(self, hdim, rl_ddl):

@@ -95,3 +95,21 @@ Terminated
 seed=3
 seed=
 Terminated
+Traceback (most recent call last):
+  File "main_rpm.py", line 132, in <module>
+    agent.learn_by_batch(batch_obs, batch_action, batch_reward)
+  File "/root/fedrl/rl/rl_model.py", line 228, in learn_by_batch
+    self.algo.learn_by_batch(obs, actions, rewards, one_hots)
+  File "/root/fedrl/rl/rl_model.py", line 154, in learn_by_batch
+    self.optimizer.step()
+  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/optimizer.py", line 280, in wrapper
+    out = func(*args, **kwargs)
+  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/optimizer.py", line 33, in _use_grad
+    ret = func(self, *args, **kwargs)
+  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 76, in step
+    sgd(params_with_grad,
+  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 222, in sgd
+    func(params,
+  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 312, in _multi_tensor_sgd
+    torch.clone(device_grads[i]).detach()
+torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 16.00 MiB (GPU 0; 23.69 GiB total capacity; 3.65 GiB already allocated; 5.25 MiB free; 3.65 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF

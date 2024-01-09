@@ -37,10 +37,10 @@ class ModelRes(nn.Module):
         super().__init__()
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        p_hidden_size = 1024
-        l_hidden_size = 512
+        p_hidden_size = 1024 * 2
+        l_hidden_size = 512 * 2
         hidden_size = 1024 * 2
-        num_blocks = 32 + 16
+        num_blocks = 32
         hdim = obs_dim // (act_dim+1)
 
         self.participant_branch = nn.Sequential(
@@ -149,8 +149,8 @@ class PolicyGradient:
         
         # cost = torch.mean(-1 * torch.log(pred) * one_hots * rewards)
         cost.backward()
-        # clip_value = 1.0
-        # nn.utils.clip_grad_norm_(self.model.parameters(), clip_value)
+        clip_value = 1.0
+        nn.utils.clip_grad_norm_(self.model.parameters(), clip_value)
         self.optimizer.step()
 
     
