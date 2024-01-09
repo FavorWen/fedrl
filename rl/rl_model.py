@@ -142,7 +142,9 @@ class PolicyGradient:
 
         # cost = torch.sum(-1 * torch.log(pred) * one_hots * rewards)
         # cost /= pred.shape[0]
-        cost = torch.sum(pred * one_hots * rewards)
+        # cost = torch.sum(pred * one_hots * rewards)
+        # cost /= pred.shape[0]
+        cost = torch.sum(torch.prod(pred * one_hots + (1 - pred) * (1 - one_hots), dim=1).unsqueeze(dim=-1) * rewards)
         cost /= pred.shape[0]
 
         # pred = F.softmax(pred, dim=-1)
