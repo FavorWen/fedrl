@@ -95,7 +95,7 @@ noise thread为标准情况
 logger.info(EXPERIENCE_INFO)
 
 # nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
-# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-6_redo-seed2.log 2>&1 &
+# nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 25 --seed 2 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-9-seed2.log 2>&1 &
 # nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset MNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-seed2.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
