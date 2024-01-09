@@ -118,8 +118,8 @@ class PolicyGradient:
     def __init__(self, model, lr=0.01, device='cuda'):
         self.model = model
         self.lr = lr
-        self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr, momentum=0.9, weight_decay=10e-4)
-        # self.optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+        # self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr, momentum=0.9, weight_decay=10e-4)
+        self.optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
         self.device=device
 
     def eval(self):
@@ -144,8 +144,8 @@ class PolicyGradient:
         # cost /= pred.shape[0]
         # cost = torch.sum(pred * one_hots * rewards)
         # cost /= pred.shape[0]
-        cost = torch.sum(torch.prod(pred * one_hots + (1 - pred) * (1 - one_hots), dim=1).unsqueeze(dim=-1) * rewards)
-        cost /= pred.shape[0]
+        epsilon = 1e-10
+        cost = torch.sum((torch.log(pred+epsilon) * one_hots + torch.log((1 - pred + epsilon)) * (1 - one_hots)) * rewards)
 
         # pred = F.softmax(pred, dim=-1)
         
