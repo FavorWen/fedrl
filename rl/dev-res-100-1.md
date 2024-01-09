@@ -10,3 +10,4 @@ history_dim = 8
         网络最后一层softmax，在sample时去掉softmax
         cost = torch.sum(pred * one_hots * rewards)
         cost /= pred.shape[0]
+以res-100-4为基准，实验reward变成 lossi - loss_(i-1)
