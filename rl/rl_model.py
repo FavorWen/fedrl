@@ -37,10 +37,10 @@ class ModelRes(nn.Module):
         super().__init__()
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        p_hidden_size = 1024 * 2
-        l_hidden_size = 512 * 2
+        p_hidden_size = 1024
+        l_hidden_size = 512
         hidden_size = 1024 * 2
-        num_blocks = 32 * 4
+        num_blocks = 32 + 16
         hdim = obs_dim // (act_dim+1)
 
         self.participant_branch = nn.Sequential(
