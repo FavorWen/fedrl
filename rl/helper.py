@@ -118,12 +118,16 @@ class ReplayMemory(object):
         if first == -1:
             first = random.choice(0, len(self.buffer)-1)
         log_list = []
+        baseline = self.buffer[first].reward()
+        T = 1
         for idx in range(first, first+hdim):
             log_list.append(self.buffer[idx].encoding(client_nums))
+            T += 1
+            baseline = baseline * (T-1)/ T + self.buffer[idx].reward()/T
         history = torch.stack(log_list, dim=0)
         action = self.buffer[first+hdim].action()
         # 改变reward, 让d=lossi - loss_i-1, d越小好
-        reward = self.buffer[first+hdim].reward() - self.buffer[first+hdim-1].reward()
+        reward = self.buffer[first+hdim].reward() - baseline
         return history.unsqueeze(0), action, reward
     
     def __usabel_indexes(self, hdim, rl_ddl):
