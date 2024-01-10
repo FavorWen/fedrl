@@ -1,5 +1,5 @@
 from train import *
-from helper import criterion, setup_seed, ReplayMemory, LogSaver
+from helper import criterion, setup_seed, ReplayMemory, LogSaver, Camera
 from rl_model import *
 import argparse
 import logging
@@ -50,6 +50,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 logger.info('Settings: {}'.format(args))
 log_saver = LogSaver()
 
+camera = Camera(history_dim=history_dim, client_nums=client_nums, participant_nums=participant_nums, rl_ddl=rl_ddl, dst=dataset_name, arch=arch_name, partition=partition, seed=seed)
+
 # 创建环境
 env = Env(obs_dim, arch_name, client_nums, participant_nums, dataset_name, partition, seed, device, criterion, log_saver=log_saver, optimizer="SGD", lr=lr, epoch=epoch, rl_ddl = rl_ddl, batch_size=batch_size)
 
@@ -95,7 +97,7 @@ noise thread为标准情况
 logger.info(EXPERIENCE_INFO)
 
 # nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
-# nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 25 --seed 5 --dataset FMNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-fmnist-100-4-seed5.log 2>&1 &
+# nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 2 --dataset FMNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-fmnist-100-4_redo-seed2.log 2>&1 &
 # nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset MNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-seed2.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
@@ -126,6 +128,7 @@ for i in range(5):
         action, act_prob = agent.sample(obs) # 采样动作
         reward, acc, action, done = env.step(action)
         rpm.append(action, reward, acc)
+        camera.updateActProbLog(act_prob)
         if rpm.isHistoryReady(history_dim, rl_ddl, MEMORY_WARMUP_SIZE) and ((env.tick+1) % LEARN_FREQ == 0):
             for k in range(MULTI_LEARN_):
                 batch_obs, batch_action, batch_reward = rpm.sample2D(hdim=history_dim,client_nums=client_nums, rl_ddl=rl_ddl, batch_size=MEMORY_BATCHSIZE)
@@ -138,15 +141,18 @@ for i in range(5):
 
         if env.tick % 10 == 0:
             acc, loss = env.validate(env.testset)
+            camera.updateTestLog(acc, loss, env.tick)
             spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
             logger.info('{} Tick {} Spearman co: {}, Test Acc: {}, Test Loss: {}'.format(i+1, env.tick, spearman_co, acc, loss))
 
         if done:
+            camera.done(rpm, env.get_rank())
             break
     # log_saver.flush()
 
     # with open(experience_path, 'wb') as f:
     #     pickle.dump(log_saver, f)
+    camera.save()
 
     spearman_co = spearman(rpm.latestObs(history_dim, client_nums), env, agent)
     if (i + 1) % 100 == 0:

@@ -2,9 +2,12 @@ res5-seed*.log
 实验环境：
         p_hidden_size = 1024
         l_hidden_size = 512
-        hidden_size = 1024
-        num_blocks = 32 * 4
+        hidden_size = 1024 * 4
+        num_blocks = 8
         网络最后一层softmax，在sample时去掉softmax
         cost = torch.sum(pred * one_hots * rewards)
         cost /= pred.shape[0]
-以res-5.md为基准，看加深网络深度的效果
+        history_dim = 8
+
+数据集:FMNIST, 网络MLP实验配置与res-8-100一致
+participant_nums = 10

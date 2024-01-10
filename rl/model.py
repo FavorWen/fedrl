@@ -93,6 +93,8 @@ class CnnNet(nn.Module):
 class ResNet18(nn.Module):
     def __init__(self, dstName):
         super().__init__()
+        if dstName == 'CIFAR100':
+            self.body = resnet18(pretrained=False,n_classes=100,input_channels=3)
         if dstName == 'CIFAR10':
             self.body = resnet18(pretrained=False,n_classes=10,input_channels=3)
         if dstName == 'MINIST'  or dstName == "MNIST" or dstName == 'FMNIST':
@@ -105,6 +107,8 @@ class ResNet18(nn.Module):
 class MobileNetV2(nn.Module):
     def __init__(self, dstName):
         super().__init__()
+        if dstName == 'CIFAR100':
+            self.body = mobilenet_v2(pretrained=False,n_class=100,i_channel=3,input_size=32)
         if dstName == 'CIFAR10':
             self.body = mobilenet_v2(pretrained=False,n_class=10,i_channel=3,input_size=32)
         if dstName == 'MINIST'  or dstName == "MNIST" or dstName == 'FMNIST':

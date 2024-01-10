@@ -89,6 +89,9 @@ class Env:
         self.rsService.set_net(self.global_net)
         self.tick = 0
         return self.init_state()
+    
+    def get_rank(self):
+        return self.rank
 
     def validate(self, set):
         val_acc = 0.0

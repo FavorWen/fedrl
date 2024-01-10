@@ -53,6 +53,54 @@ def aggregate(net, clientGrads, clientN, samples):
         sum_grad[k] = sum_mean
     return update(net, sum_grad)
 
+class TestLog:
+    def __init__(self, acc, loss, round):
+        self.l = []
+        self.acc = acc
+        self.loss = loss
+        self.round = round
+
+class Camera(object):
+ 
+    def __init__(self, history_dim, client_nums, participant_nums, rl_ddl, dst, arch, partition, seed, dir='camera/'):
+        self.history_dim = history_dim
+        self.client_nums = client_nums
+        self.participant_nums = participant_nums
+        self.rl_ddl = rl_ddl
+        self.dst=dst
+        self.arch=arch
+        self.partition = partition
+        self.seed = seed
+        self.dir = dir
+        self.rpm = None
+        self.rank = None
+        self.round = 0
+        self.act_probLogs = []
+        self.tmp_act_probList = []
+        self.testLogs = []
+        self.tmp_testLogList = []
+    
+    def save(self):
+        path = self.dir + 'cn{}_pn{}_d{}_a{}_p{}_seed{}.camera'.format(self.client_nums, self.participant_nums, self.dst, self.arch, self.partition, self.seed)
+        with open(path, 'wb') as file:
+            pickle.dump(self, file)
+
+    def updateActProbLog(self, act_prob):
+        self.tmp_act_probList.append(act_prob)
+    
+    def updateTestLog(self, acc, loss, round):
+        self.tmp_testLogList.append(TestLog(acc, loss, round))
+    
+    def done(self, rpm, rank):
+        self.act_probLogs.append(self.tmp_act_probList)
+        self.tmp_act_probList = []
+        self.testLogs.append(self.tmp_testLogList)
+        self.tmp_testLogList = []
+        self.rpm = rpm
+        self.rank = rank
+        self.round += 1
+
+
 class LogSaver(object):
     def __init__(self):
         self.size = 0

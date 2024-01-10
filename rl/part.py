@@ -37,7 +37,12 @@ class Partitioner:
             trainset = torchvision.datasets.CIFAR10(root=self.dst_path, train=True, download=True, transform=transform)
             alltestset =  torchvision.datasets.CIFAR10(root=self.dst_path, train=False, download=True, transform=transform)
             partitioner = CIFAR10Partitioner
-            client_dict = self.cifar10_part(trainset, partitioner)
+            client_dict = self.cifar_part(trainset, partitioner)
+        elif self.dst_name == "CIFAR100":
+            trainset = torchvision.datasets.CIFAR100(root=self.dst_path, train=True, download=True, transform=transform)
+            alltestset =  torchvision.datasets.CIFAR100(root=self.dst_path, train=False, download=True, transform=transform)
+            partitioner = CIFAR10Partitioner
+            client_dict = self.cifar_part(trainset, partitioner)
         else:
             exit("No such dataset" + self.dst)
         n1 = int(rate * alltestset.__len__())
@@ -46,7 +51,7 @@ class Partitioner:
         return trainset, valset, testset, client_dict
         
 
-    def cifar10_part(self, trainset, partitioner):
+    def cifar_part(self, trainset, partitioner):
         if self.partition == "iid":
             part = partitioner(trainset.targets,
                                       self.client_nums,
