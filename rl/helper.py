@@ -99,6 +99,10 @@ class Camera(object):
         self.rpm = rpm
         self.rank = rank
         self.round += 1
+    
+    def getRpmLogs(self, round):
+        b = round * (self.rl_ddl + self.history_dim)
+        return [self.rpm.buffer[i] for i in range(b+self.history_dim-2, b + self.rl_ddl + self.history_dim)]
 
 
 class LogSaver(object):
