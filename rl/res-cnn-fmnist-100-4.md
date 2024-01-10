@@ -8,5 +8,4 @@ res5-seed*.log
         cost = torch.sum(pred * one_hots * rewards)
         cost /= pred.shape[0]
         history_dim = 8
-
-测试MLP-100的情况
+实验配置与res-8-100一致，除数据集外
