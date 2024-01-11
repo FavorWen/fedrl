@@ -96,9 +96,9 @@ noise thread为标准情况
 """
 logger.info(EXPERIENCE_INFO)
 
-# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition iid --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
-# nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 2 --dataset MNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-mnist-100-seed2.log 2>&1 &
-# nohup python main_rpm.py --history_dim 4 --client_nums 5 --participant_nums 3 --seed 3 --dataset FMNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-fmnist-5-seed3.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.001 --epoch 1 --rl_ddl 200 --batch_size 32 > out_rpm_seed4_8.log 2>&1 &
+# nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 2 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-mnist-100-seed2.log 2>&1 &
+# nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset FMNIST --arch MLP --partition iid --optimizer SGD  --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-mlp-fmnist-25-seed2.log 2>&1 &
 # 根据parl框架构建agent
 # model = Model(obs_dim, act_dim).to(device)
 model = ModelRes(obs_dim, act_dim).to(device)

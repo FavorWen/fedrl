@@ -1,115 +1,25 @@
-seed=1
-seed=1
-seed=2
-seed=2
-seed=1
-seed=3
-seed=1
-seed=2
-seed=3
-seed=1
-seed=1
-seed=2
-seed=3
-seed=2
-seed=3
-seed=1
-Terminated
-Terminated
-Terminated
-seed=1
-seed=2
-seed=3
-Terminated
-./run.sh: line 24: ain_rpm.py: command not found
-Terminated
-./run.sh: line 24: ain_rpm.py: command not found
-Terminated
-./run.sh: line 24: ain_rpm.py: command not found
-seed=1
-seed=2
-seed=3
-Terminated
-Terminated
-Terminated
-seed=1
-seed=2
-seed=3
-seed=
-seed=2
-seed=3
-./run.sh: line 15:  1447 Killed                  python main_rpm.py --history_dim=2 --client_nums 25 --participant_nums 5 --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-seed=2
-seed=2
-seed=4
-seed=5
-seed=1
-seed=1
-seed=1
-seed=1
-seed=1
-seed=2
-seed=1
-seed=2
-seed=1
-seed=2
-seed=3
-seed=4
-seed=5
-seed=3
-seed=4
-seed=5
-seed=3
-seed=4
-seed=3
-seed=4
-seed=5
-seed=5
-Terminated
-seed=3
-seed=4
-seed=5
-seed=3
-seed=4
-seed=4
-seed=5
-seed=5
-seed=4
-seed=3
-seed=3
-seed=4
-seed=5
-seed=3
-seed=4
-seed=4
-./run.sh: line 19:  3636 Killed                  python main_rpm.py --history_dim=4 --client_nums $nums --participant_nums $partin --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-./run.sh: line 19:  4674 Killed                  python main_rpm.py --history_dim=4 --client_nums $nums --participant_nums $partin --seed $seed --dataset $dataset --arch $arch --partition $partition --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > $log_path 2>&1
-seed=4
-seed=4
-seed=4
-seed=4
-seed=4
-Terminated
-./run.sh: line 27: syntax error near unexpected token `done'
-./run.sh: line 27: `        done'
-seed=3
-seed=
-Terminated
-Traceback (most recent call last):
-  File "main_rpm.py", line 132, in <module>
-    agent.learn_by_batch(batch_obs, batch_action, batch_reward)
-  File "/root/fedrl/rl/rl_model.py", line 228, in learn_by_batch
-    self.algo.learn_by_batch(obs, actions, rewards, one_hots)
-  File "/root/fedrl/rl/rl_model.py", line 154, in learn_by_batch
-    self.optimizer.step()
-  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/optimizer.py", line 280, in wrapper
-    out = func(*args, **kwargs)
-  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/optimizer.py", line 33, in _use_grad
-    ret = func(self, *args, **kwargs)
-  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 76, in step
-    sgd(params_with_grad,
-  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 222, in sgd
-    func(params,
-  File "/root/miniconda3/lib/python3.8/site-packages/torch/optim/sgd.py", line 312, in _multi_tensor_sgd
-    torch.clone(device_grads[i]).detach()
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 16.00 MiB (GPU 0; 23.69 GiB total capacity; 3.65 GiB already allocated; 5.25 MiB free; 3.65 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 5 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-100-seed5.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 4 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-100-seed4.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 3 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-100-seed3.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 2 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-100-seed2.log &
+
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-25-seed5.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-25-seed4.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 3 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-25-seed3.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-25-seed2.log &
+
+nohup python main_rpm.py --history_dim 4 --client_nums 5 --participant_nums 3 --seed 5 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-5-seed5.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 5 --participant_nums 3 --seed 4 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-5-seed4.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 5 --participant_nums 3 --seed 3 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-5-seed3.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 5 --participant_nums 3 --seed 2 --dataset CIFAR10 --arch CNN --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-CNN-5-seed2.log &
+
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 5 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-100-seed5.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 4 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-100-seed4.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 3 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-100-seed3.log &
+nohup python main_rpm.py --history_dim 8 --client_nums 100 --participant_nums 10 --seed 2 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-100-seed2.log &
+
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 5 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-25-seed5.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 4 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-25-seed4.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 3 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-25-seed3.log &
+nohup python main_rpm.py --history_dim 4 --client_nums 25 --participant_nums 5 --seed 2 --dataset CIFAR100 --arch RESNET18 --partition label-skew --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-RESNET18-25-seed2.log &
+

@@ -1,16 +1,16 @@
 #!/bin/bash
 
 
-partition=(iid label-skew)
-datasets=(FMNIST MNIST CIFAR10 CIFAR100)
-archs=(MLP MLP CNN RESNET18)
+partition=(label-skew)
+datasets=(CIFAR10 CIFAR100)
+archs=(CNN RESNET18)
 hdims=(8 4 4)
 cn=(100 25 5)
 pn=(10 5 3)
 seeds=(5 4 3 2)
 
 for part in "${partition[@]}"; do
-    for((i=0;i<4;i++))
+    for((i=0;i<2;i++))
     do
         dataset=${datasets[$i]}
         arch=${archs[$i]}
@@ -20,9 +20,12 @@ for part in "${partition[@]}"; do
             c=${cn[$j]}
             p=${pn[$j]}
             for seed in "${seeds[@]}"; do
+                python main_rpm.py --history_dim $hdim --client_nums $c --participant_nums $p --seed $seed --dataset $dataset --arch $arch --partition $part --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-${arch}-${c}-seed${seed}.log &
                 echo "nohup python main_rpm.py --history_dim $hdim --client_nums $c --participant_nums $p --seed $seed --dataset $dataset --arch $arch --partition $part --optimizer SGD --lr 0.01 --epoch 1 --rl_ddl 200 --batch_size 32 > res-${arch}-${c}-seed${seed}.log &"
             done
-            wait -n
+            echo ""
+            wait
+            sleep 6
         done
     done
 done
