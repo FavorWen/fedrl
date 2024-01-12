@@ -61,9 +61,10 @@ class Partitioner:
         elif self.partition == "label-skew":
             part = partitioner(trainset.targets,
                                       self.client_nums,
-                                      balance=None,
+                                      balance=False,
                                       partition="dirichlet",
                                       dir_alpha=0.5,
+                                      unbalance_sgm=0.3,
                                       seed=self.seed)
         elif self.partition == "quantity-skew":
             part = partitioner(trainset.targets,

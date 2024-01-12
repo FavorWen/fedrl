@@ -1,9 +1,9 @@
 #!/bin/bash
 
 
-partition=(label-skew)
-datasets=(CIFAR10 CIFAR100)
-archs=(CNN RESNET18)
+partition=(iid)
+datasets=(CIFAR100)
+archs=(RESNET18)
 hdims=(8 4 4)
 cn=(100 25 5)
 pn=(10 5 3)
