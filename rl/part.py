@@ -1,4 +1,4 @@
-from fedlab.utils.dataset.partition import CIFAR10Partitioner
+from fedlab.utils.dataset.partition import CIFAR10Partitioner, CIFAR100Partitioner
 from fedlab.utils.dataset import FMNISTPartitioner
 from fedlab.utils.dataset import MNISTPartitioner
 
@@ -41,7 +41,7 @@ class Partitioner:
         elif self.dst_name == "CIFAR100":
             trainset = torchvision.datasets.CIFAR100(root=self.dst_path, train=True, download=True, transform=transform)
             alltestset =  torchvision.datasets.CIFAR100(root=self.dst_path, train=False, download=True, transform=transform)
-            partitioner = CIFAR10Partitioner
+            partitioner = CIFAR100Partitioner
             client_dict = self.cifar_part(trainset, partitioner)
         else:
             exit("No such dataset" + self.dst)
@@ -61,10 +61,14 @@ class Partitioner:
         elif self.partition == "label-skew":
             part = partitioner(trainset.targets,
                                       self.client_nums,
-                                      balance=False,
+                                      balance=None,
                                       partition="dirichlet",
                                       dir_alpha=0.5,
                                       unbalance_sgm=0.3,
+                                    #   balance=False,
+                                    #   partition="iid",
+                                    #   dir_alpha=0.5,
+                                    #   unbalance_sgm=0.3,
                                       seed=self.seed)
         elif self.partition == "quantity-skew":
             part = partitioner(trainset.targets,
